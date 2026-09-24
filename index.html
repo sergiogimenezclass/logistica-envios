@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogiTrack — Seguimiento & Gestión de Envíos</title>
+
+    <!-- Librería Geoespacial Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Tipografías de Google Fonts: Plus Jakarta Sans y JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Hoja de Estilos Personalizada en CSS Vainilla -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="app-root">
+
+    <!-- ========================================================= -->
+    <!-- CABECERA PRINCIPAL Y CONMUTADOR DE ROLES                  -->
+    <!-- ========================================================= -->
+    <header class="site-header">
+        <div class="header-content">
+
+            <!-- Logotipo Institucional / Identidad de Marca -->
+            <div class="brand-logo">
+                <span class="logo-main">Logi</span><span class="logo-accent">Track</span>
+                <span class="brand-tag">Express</span>
+            </div>
+
+            <!-- Navegación por Pestañas Segmentadas (Cambio de Vista) -->
+            <nav class="nav-role-switcher">
+                <button id="tab-client" onclick="switchRole('client')" class="nav-btn nav-btn-active">
+                    <svg width="14" height="14" style="color: var(--color-fedex-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>Portal Rastreo</span>
+                </button>
+                <button id="tab-operator" onclick="switchRole('operator')" class="nav-btn nav-btn-inactive">
+                    <svg width="14" height="14" style="color: #e9d5ff;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+                    </svg>
+                    <span>Operador de Tráfico</span>
+                </button>
+            </nav>
+
+        </div>
+    </header>
+
+    <!-- ========================================================= -->
+    <!-- CONTENEDOR PRINCIPAL DE VISTAS                            -->
+    <!-- ========================================================= -->
+    <main class="main-container">
+
+        <!-- ========================================================= -->
+        <!-- VISTA 1: PORTAL PÚBLICO DE RASTREO (CLIENTE)               -->
+        <!-- ========================================================= -->
+        <section id="view-client">
+
+            <!-- Banner Principal y Buscador de Guías -->
+            <div class="hero-banner">
+                <div class="hero-header">
+                    <div class="hero-badge">
+                        <span class="pulse-dot"></span>
+                        FEDEX LOGITRACK DIRECT SERVICE
+                    </div>
+                    <h2 class="hero-title">
+                        Rastree su Envío en Línea
+                    </h2>
+                    <p class="hero-description">
+                        Obtenga información de tránsito en tiempo real, confirmación de firma y PIN de entrega seguro.
+                    </p>
+                </div>
+
+                <!-- Caja de Entrada de Rastreo -->
+                <div class="search-box">
+                    <div class="search-input-wrapper">
+                        <input type="text" id="search-tracking-input" placeholder="NÚMERO DE RASTREO (EJ: AR-1001)" class="search-input">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <button id="btn-search-tracking" type="button" class="btn-search">
+                        <span>RASTREAR</span>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Píldoras de Consulta Rápida -->
+                <div class="quick-pills-container" id="quick-demo-pills">
+                    <!-- Cargadas dinámicamente desde app.js -->
+                </div>
+            </div>
+
+            <!-- Grilla Principal de Seguimiento (Información + Mapa) -->
+            <div class="client-grid">
+
+                <!-- Columna Izquierda: Tarjeta de Estado, Simulador y Cotizador -->
+                <div style="display: flex; flex-direction: column; gap: 24px;">
+
+                    <!-- Tarjeta de Manifiesto Oficial -->
+                    <div class="card-container">
+
+                        <!-- Cabecera con Código de Guía y Estado -->
+                        <div class="card-header">
+                            <div class="card-header-info">
+                                <span class="card-subtitle-mono">NÚMERO DE GUÍA OFICIAL</span>
+                                <h3 id="client-tracking-code" class="card-title-lg">AR-1001</h3>
+                                <p id="client-recipient" class="card-recipient-text">Lucía Fernández</p>
+                            </div>
+                            <div id="client-status-badge">
+                                <span class="badge-status badge-transit">
+                                    En tránsito
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Bloque de Muestra del PIN de Seguridad -->
+                        <div class="pin-box-section">
+                            <div class="pin-info-text">
+                                <span class="pin-label-title">CÓDIGO DE LIBERACIÓN (PIN)</span>
+                                <p class="pin-label-sub">Requerido por el mensajero para autorizar descarga en mano.</p>
+                            </div>
+                            <div class="pin-display-badge">
+                                <span id="client-pin-display" class="pin-number">4921</span>
+                            </div>
+                        </div>
+
+                        <!-- Detalles del Destino y Tipo de Servicio -->
+                        <div class="card-details-section">
+                            <div>
+                                <span class="detail-label-mono">DIRECCIÓN DE DESTINO</span>
+                                <p id="client-address" class="detail-address-box">
+                                    Av. Corrientes 1350, San Nicolás, CABA
+                                </p>
+                            </div>
+
+                            <div class="detail-flex-row">
+                                <div>
+                                    <span class="detail-label-mono">TIPO DE SERVICIO</span>
+                                    <span id="client-package-type" style="font-weight: 700; color: var(--color-carbon-800);">FedEx Express Standard</span>
+                                </div>
+                                <button id="btn-show-label-client" class="btn-link-action">
+                                    Ver Manifiesto / QR ↗
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Panel de Controles de Simulación Satelital -->
+                        <div class="sim-controls-section">
+                            <div class="sim-header-row">
+                                <div>
+                                    <span id="sim-tracking-id" style="font-size: 12px; font-weight: 900; text-transform: uppercase; color: var(--color-fedex-purple); display: block;">Simulador Satelital</span>
+                                    <p id="sim-route-info" style="font-size: 11px; color: var(--color-carbon-500); font-weight: 500;">Conectando con vehículo...</p>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <button id="btn-sim-play" class="btn-sim-primary">
+                                        <span id="btn-sim-play-icon">▶</span>
+                                        <span id="btn-sim-play-text">Iniciar</span>
+                                    </button>
+                                    <button id="btn-sim-reset" class="btn-sim-secondary" title="Reiniciar">
+                                        ↺
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Barra de Progreso del Móvil -->
+                            <div class="progress-container">
+                                <div class="progress-labels">
+                                    <span>Trayecto completado: <strong id="sim-progress-text" style="color: var(--color-fedex-orange); font-weight: 900;">0%</strong></span>
+                                    <span id="sim-eta-text" style="color: var(--color-carbon-500); font-weight: 600;">ETA: ~15 min</span>
+                                </div>
+                                <div class="progress-track">
+                                    <div id="sim-progress-bar" class="progress-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Selector de Velocidades de Reproducción -->
+                            <div class="speed-bar">
+                                <span style="font-size: 11px; color: var(--color-carbon-500); font-weight: 700; text-transform: uppercase; font-family: var(--font-mono);">Velocidad del móvil</span>
+                                <div class="speed-buttons-group">
+                                    <button class="sim-speed-btn bg-fedex-purple text-white" data-speed="1">1x</button>
+                                    <button class="sim-speed-btn text-carbon-600" data-speed="3">3x</button>
+                                    <button class="sim-speed-btn text-carbon-600" data-speed="8">8x</button>
+                                    <button class="sim-speed-btn text-carbon-600" data-speed="16">16x</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Línea de Tiempo de Eventos (Timeline) -->
+                        <div class="timeline-section">
+                            <span class="detail-label-mono" style="margin-bottom: 12px;">HISTORIAL DETALLADO DE TRÁNSITO</span>
+                            <div id="timeline-container" class="timeline-list">
+                                <!-- Generado dinámicamente desde app.js -->
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Tarjeta Cotizadora de Tarifas y Tiempos de Tránsito -->
+                    <div class="quote-card">
+                        <div class="quote-header">
+                            <div>
+                                <h3 class="quote-title">Tarifas y Tiempos de Tránsito</h3>
+                                <p style="font-size: 11px; color: var(--color-carbon-500); font-weight: 500;">Cotice servicios domésticos por red troncal</p>
+                            </div>
+                            <span class="quote-tag">FEDEX DOMESTIC</span>
+                        </div>
+
+                        <div class="grid-2col">
+                            <div>
+                                <label class="form-label" style="margin-bottom: 4px; display: block;">CIUDAD DE DESTINO</label>
+                                <input type="text" id="quote-destination" value="Córdoba Capital" placeholder="Ciudad de entrega" class="form-input">
+                            </div>
+                            <div>
+                                <label class="form-label" style="margin-bottom: 4px; display: block;">PESO DEL PAQUETE</label>
+                                <select id="quote-weight" class="form-select">
+                                    <option value="1">FedEx Envelope (Hasta 1 kg)</option>
+                                    <option value="3" selected>FedEx Box Estándar (2 a 5 kg)</option>
+                                    <option value="10">FedEx Medium Box (5 a 15 kg)</option>
+                                    <option value="25">FedEx Freight Doméstico (15 a 30 kg)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button id="btn-calculate-quote" class="btn-sim-primary" style="width: 100%; justify-content: center; padding: 10px;">
+                            Obtener Tarifa Estimada
+                        </button>
+
+                        <div id="quote-result-card" class="quote-result-box hidden">
+                            <div class="quote-result-row">
+                                <span>Distancia Troncal:</span>
+                                <strong id="quote-distance" style="color: var(--color-carbon-950); font-weight: 700;">~0 km</strong>
+                            </div>
+                            <div class="quote-result-row">
+                                <span>Servicio Comprometido:</span>
+                                <span id="quote-sla" style="color: var(--color-fedex-purple); font-weight: 700;">FedEx Priority (24-48 hs)</span>
+                            </div>
+                            <div class="quote-total-row">
+                                <span>Total Flete Aprobado:</span>
+                                <span id="quote-total-price" class="quote-price-tag">$0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Columna Derecha: Mapa Interactivo de Monitoreo -->
+                <div style="display: flex; flex-direction: column;">
+                    <div class="map-card-container">
+                        <div class="map-card-header">
+                            <div class="map-status-dot-wrapper">
+                                <span class="map-status-dot"></span>
+                                <span style="font-size: 12px; font-family: var(--font-mono); text-transform: uppercase; font-weight: 900; color: var(--color-carbon-800);">Monitoreo Satelital de Unidad</span>
+                            </div>
+                            <button id="btn-reset-map" class="btn-link-action">
+                                Ajustar a ruta completa ↗
+                            </button>
+                        </div>
+
+                        <div class="map-wrapper">
+                            <div id="map-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- VISTA 2: PANEL PRIVADO DE OPERADOR (TRÁFICO Y CRUD)       -->
+        <!-- ========================================================= -->
+        <section id="view-operator" class="hidden">
+
+            <!-- Fila de Tarjetas de Métricas -->
+            <div class="metrics-grid">
+                <div class="stat-card">
+                    <span class="stat-label" style="color: var(--color-carbon-400);">Total Envíos</span>
+                    <p class="stat-number" id="stat-total">0</p>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label" style="color: var(--color-amber-600);">En preparación</span>
+                    <p class="stat-number" id="stat-prep">0</p>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label" style="color: var(--color-fedex-purple);">En camino</span>
+                    <p class="stat-number" id="stat-transit">0</p>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label" style="color: var(--color-emerald-600);">Entregados</span>
+                    <p class="stat-number" id="stat-delivered">0</p>
+                </div>
+            </div>
+
+            <!-- Grilla Operativa (Formulario de Despacho y Planilla Maestra) -->
+            <div class="operator-grid">
+
+                <!-- Formulario de Registro y Edición -->
+                <div class="form-card">
+                    <div class="form-header">
+                        <h2 id="form-title" style="font-weight: 700; color: var(--color-carbon-950); font-size: 14px;">Registrar Nuevo Envío</h2>
+                        <span id="form-badge" style="font-size: 11px; font-family: var(--font-mono); color: var(--color-carbon-500); background-color: var(--color-carbon-100); padding: 2px 8px; border-radius: 4px;">Alta</span>
+                    </div>
+
+                    <form id="shipment-form" class="form-body">
+                        <input type="hidden" id="edit-id">
+
+                        <div class="grid-2col">
+                            <div class="form-group">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                                    <label for="tracking-code" class="form-label">Código Tracking</label>
+                                    <button type="button" id="btn-generate-code" style="font-size: 10px; color: var(--color-fedex-purple); background: none; border: none; cursor: pointer; text-decoration: underline; font-weight: 500;">Autogenerar</button>
+                                </div>
+                                <input type="text" id="tracking-code" required placeholder="AR-4091" class="form-input font-mono" style="text-transform: uppercase;">
+                            </div>
+                            <div class="form-group">
+                                <label for="recipient" class="form-label" style="margin-bottom: 4px;">Destinatario</label>
+                                <input type="text" id="recipient" required placeholder="Nombre y Apellido" class="form-input">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address" class="form-label" style="margin-bottom: 4px;">Dirección de Entrega</label>
+                            <input type="text" id="address" required placeholder="Ej: Av. Colón 1200, Córdoba Capital" class="form-input">
+                            <p style="font-size: 10px; color: var(--color-carbon-400); margin-top: 4px;">Geocodificado automático mediante OpenStreetMap.</p>
+                        </div>
+
+                        <div class="grid-2col">
+                            <div class="form-group">
+                                <label for="status" class="form-label" style="margin-bottom: 4px;">Estado</label>
+                                <select id="status" required class="form-select">
+                                    <option value="En preparación">En preparación</option>
+                                    <option value="En camino">En camino</option>
+                                    <option value="Entregado">Entregado</option>
+                                    <option value="Cancelado">Cancelado</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="package-type" class="form-label" style="margin-bottom: 4px;">Tipo de Carga</label>
+                                <select id="package-type" class="form-select">
+                                    <option value="Caja chica (< 2kg)">Caja chica (&lt; 2kg)</option>
+                                    <option value="Paquete estándar (2 - 10kg)">Paquete estándar (2 - 10kg)</option>
+                                    <option value="Bulto pesado (> 10kg)">Bulto pesado (&gt; 10kg)</option>
+                                    <option value="Documentación / Sobre">Documentación / Sobre</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Generación de PIN Secreto -->
+                        <div class="pin-generation-box">
+                            <div>
+                                <span style="font-size: 12px; font-weight: 600; color: var(--color-carbon-900); display: block;">PIN de Entrega (4 dígitos)</span>
+                                <span style="font-size: 10px; color: var(--color-carbon-500);">Se autogenera para validar recepción.</span>
+                            </div>
+                            <input type="text" id="package-pin" readonly maxlength="4" class="form-input font-mono" style="width: 64px; text-align: center; font-weight: 700; background-color: #ffffff;">
+                        </div>
+
+                        <!-- Botones de Acción del Formulario -->
+                        <div class="form-actions-row">
+                            <button type="button" id="btn-reset-storage" style="font-size: 11px; color: var(--color-rose-600); background: none; border: none; cursor: pointer; text-decoration: underline;">
+                                Restablecer datos fábrica
+                            </button>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button type="button" id="btn-cancel" class="btn-secondary-light hidden">
+                                    Cancelar
+                                </button>
+                                <button type="submit" id="btn-submit" class="btn-primary-dark">
+                                    <span id="btn-submit-text">Guardar Envío</span>
+                                    <svg id="btn-spinner" class="hidden" style="width: 14px; height: 14px; animation: spin 1s linear infinite;" fill="none" viewBox="0 0 24 24">
+                                        <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Planilla Maestra de Registros (Tabla CRUD) -->
+                <div class="table-card">
+                    <div class="table-header-bar">
+                        <div>
+                            <h2 style="font-weight: 700; color: var(--color-carbon-950); font-size: 14px;">Planilla Maestra de Despachos</h2>
+                            <p style="font-size: 11px; color: var(--color-carbon-500);">Persistido en localStorage</p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="text" id="table-filter-input" placeholder="Filtrar por código o cliente..." class="form-input font-mono" style="padding: 4px 10px; font-size: 12px; width: 180px;">
+                            <div id="counter-badge" style="font-size: 11px; font-family: var(--font-mono); font-weight: 500; color: var(--color-carbon-600); background-color: var(--color-carbon-100); padding: 4px 10px; border-radius: 6px;">
+                                0 envíos
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Tracking</th>
+                                    <th>Destinatario</th>
+                                    <th>PIN</th>
+                                    <th>Estado</th>
+                                    <th style="text-align: right;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shipments-table-body">
+                                <!-- Filas cargadas dinámicamente desde app.js -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================================================= -->
+    <!-- MODAL 1: VALIDACIÓN DE PIN EN RECEPCIÓN                   -->
+    <!-- ========================================================= -->
+    <div id="pin-modal" class="modal-backdrop hidden">
+        <div class="modal-card modal-sm">
+            <div class="modal-header">
+                <span style="font-size: 12px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px; color: var(--color-carbon-500); font-weight: 700;">Verificación Requerida</span>
+                <button onclick="closePinModal()" style="color: var(--color-carbon-400); background: none; border: none; font-size: 16px; font-weight: 700; cursor: pointer;">✕</button>
+            </div>
+
+            <div>
+                <h3 style="font-size: 16px; font-weight: 700; color: var(--color-carbon-950);">Validar PIN de Recepción</h3>
+                <p style="font-size: 12px; color: var(--color-carbon-500); margin-top: 4px;">El destinatario debe proveer el código de 4 dígitos para autorizar la descarga del paquete.</p>
+            </div>
+
+            <div style="padding: 16px; background-color: var(--color-carbon-50); border: 1px solid var(--color-carbon-200); border-radius: 8px; display: flex; flex-direction: column; gap: 8px; text-align: center;">
+                <span style="font-size: 11px; font-family: var(--font-mono); color: var(--color-carbon-500); text-transform: uppercase; font-weight: 500;">Guía en Entrega</span>
+                <strong id="pin-modal-tracking" style="font-size: 14px; font-family: var(--font-mono); color: var(--color-carbon-950);">AR-XXXX</strong>
+                <div style="padding-top: 4px; display: flex; justify-content: center;">
+                    <input type="text" id="pin-input-code" maxlength="4" placeholder="••••" autofocus class="form-input font-mono" style="width: 128px; text-align: center; font-size: 20px; font-weight: 700; letter-spacing: 4px;">
+                </div>
+                <p id="pin-error-msg" class="hidden" style="font-size: 12px; color: var(--color-rose-600); font-weight: 600;">PIN incorrecto. Reintentar con el cliente.</p>
+            </div>
+
+            <div class="modal-actions">
+                <button onclick="closePinModal()" class="btn-secondary-light" style="flex: 1; padding: 8px;">
+                    Cancelar
+                </button>
+                <button id="btn-validate-pin" class="btn-primary-dark" style="flex: 1; padding: 8px; justify-content: center;">
+                    Confirmar Entrega
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL 2: RÓTULO LOGÍSTICO CON CÓDIGO QR                   -->
+    <!-- ========================================================= -->
+    <div id="label-modal" class="modal-backdrop hidden">
+        <div class="modal-card modal-lg">
+            <div class="modal-header no-print" style="border-bottom: 1px solid var(--color-carbon-100); padding-bottom: 12px;">
+                <h3 style="font-weight: 700; color: var(--color-carbon-950); font-size: 14px;">Rótulo Logístico de Despacho</h3>
+                <button onclick="closeLabelModal()" style="color: var(--color-carbon-400); background: none; border: none; font-size: 16px; font-weight: 700; cursor: pointer;">✕</button>
+            </div>
+
+            <!-- Etiqueta Imprimible -->
+            <div id="print-modal-content" style="background-color: #ffffff; border: 2px solid var(--color-carbon-950); border-radius: 4px; padding: 20px; color: var(--color-carbon-950); display: flex; flex-direction: column; gap: 16px;">
+                <div style="display: flex; align-items: flex-start; justify-content: space-between; border-bottom: 2px solid var(--color-carbon-950); padding-bottom: 12px;">
+                    <div>
+                        <span style="font-size: 12px; font-family: var(--font-mono); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--color-fedex-purple); display: block;">FEDEX EXPRESS DOMESTIC</span>
+                        <h4 id="lbl-tracking" style="font-size: 20px; font-family: var(--font-mono); font-weight: 900; margin-top: 2px;">AR-1001</h4>
+                        <span id="lbl-date" style="font-size: 10px; font-family: var(--font-mono); color: var(--color-carbon-500);">24/09/2026</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <img id="lbl-qr-img" style="width: 64px; height: 64px; border: 1px solid var(--color-carbon-300); padding: 4px; border-radius: 4px;" alt="QR Code">
+                    </div>
+                </div>
+
+                <div class="grid-2col" style="font-size: 12px;">
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <span style="font-size: 10px; font-family: var(--font-mono); text-transform: uppercase; font-weight: 700; color: var(--color-carbon-400); display: block;">REMITENTE / HUB ORIGEN</span>
+                        <p style="font-weight: 700; color: var(--color-carbon-900);">Centro Logístico Central</p>
+                        <p style="color: var(--color-carbon-600); font-size: 11px;">Mercado Central, Tapiales, PBA</p>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <span style="font-size: 10px; font-family: var(--font-mono); text-transform: uppercase; font-weight: 700; color: var(--color-carbon-400); display: block;">DESTINATARIO</span>
+                        <p id="lbl-recipient" style="font-weight: 700; color: var(--color-carbon-900);">Nombre Destinatario</p>
+                        <p id="lbl-address" style="color: var(--color-carbon-600); font-size: 11px;">Dirección completa</p>
+                    </div>
+                </div>
+
+                <div style="border-top: 2px solid var(--color-carbon-950); padding-top: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <span style="font-size: 10px; font-family: var(--font-mono); text-transform: uppercase; font-weight: 700; color: var(--color-carbon-400); display: block;">SERVICIO</span>
+                        <span id="lbl-package-type" style="font-weight: 700; font-size: 12px;">FedEx Express Standard</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 10px; font-family: var(--font-mono); text-transform: uppercase; font-weight: 700; color: var(--color-carbon-400); display: block;">PIN DE RECEPCIÓN</span>
+                        <span id="lbl-pin" style="font-family: var(--font-mono); font-weight: 700; font-size: 14px; background-color: #f3e8ff; color: var(--color-fedex-purple); padding: 2px 8px; border-radius: 4px; border: 1px solid #e9d5ff;">0000</span>
+                    </div>
+                </div>
+
+                <div style="padding-top: 8px; text-align: center; border-top: 1px solid var(--color-carbon-200);">
+                    <div id="lbl-barcode" style="font-family: var(--font-mono); font-size: 24px; letter-spacing: 4px; font-weight: 900; padding: 4px 0px;">|||| | ||||| || ||||</div>
+                    <span id="lbl-tracking-sub" style="font-size: 10px; font-family: var(--font-mono); color: var(--color-carbon-500); text-transform: uppercase;">AR-1001</span>
+                </div>
+            </div>
+
+            <div class="modal-actions no-print" style="padding-top: 8px;">
+                <button onclick="window.print()" class="btn-sim-primary" style="flex: 1; justify-content: center; padding: 10px;">
+                    <span>🖨️ Imprimir Rótulo</span>
+                </button>
+                <button onclick="closeLabelModal()" class="btn-secondary-light" style="padding: 8px 16px;">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor para Notificaciones Toast -->
+    <div id="toast-container"></div>
+
+    <!-- Inclusión de Scripts JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
