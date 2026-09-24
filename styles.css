@@ -1,0 +1,1411 @@
+/* ==========================================================================
+   LogiTrack Express — Hoja de Estilos Personalizada (CSS Vainilla)
+   - Layout General: CSS Grid
+   - Layout de Componentes: Flexbox
+   - Unidades de Medida: Exclusivamente px y %
+   ========================================================================== */
+
+:root {
+    /* Paleta de Colores Corporativos (Inspirada en FedEx) */
+    --color-fedex-purple: #4D148C;
+    --color-fedex-purple-dark: #380E66;
+    --color-fedex-orange: #FF6200;
+    --color-fedex-orange-hover: #E05600;
+    --color-fedex-surface: #FAF7FD;
+    
+    /* Escala de Grises y Tonos Neutros (Carbon) */
+    --color-carbon-50: #F9FAFB;
+    --color-carbon-100: #F3F4F6;
+    --color-carbon-200: #E5E7EB;
+    --color-carbon-300: #D1D5DB;
+    --color-carbon-400: #9CA3AF;
+    --color-carbon-500: #6B7280;
+    --color-carbon-600: #4B5563;
+    --color-carbon-700: #374151;
+    --color-carbon-800: #1F2937;
+    --color-carbon-900: #111827;
+    --color-carbon-950: #09090B;
+    
+    /* Colores Semánticos de Estado (Preparación, Camino, Entregado, Error) */
+    --color-amber-50: #FFFBEB;
+    --color-amber-200: #FDE68A;
+    --color-amber-600: #D97706;
+    --color-amber-800: #92400E;
+    
+    --color-emerald-50: #ECFDF5;
+    --color-emerald-100: #D1FAE5;
+    --color-emerald-200: #A7F3D0;
+    --color-emerald-600: #059669;
+    --color-emerald-800: #065F46;
+    --color-emerald-950: #022C22;
+    
+    --color-rose-50: #FFF1F2;
+    --color-rose-100: #FFE4E6;
+    --color-rose-200: #FECDD3;
+    --color-rose-500: #F43F5E;
+    --color-rose-600: #E11D48;
+    --color-rose-700: #BE123C;
+    --color-rose-800: #9F1239;
+    --color-rose-950: #4C0519;
+
+    /* Sombras y Elevaciones */
+    --shadow-subtle: 0px 1px 2px 0px rgba(0, 0, 0, 0.04);
+    --shadow-card: 0px 1px 3px 0px rgba(0, 0, 0, 0.05), 0px 1px 2px -1px rgba(0, 0, 0, 0.05);
+    --shadow-overlay: 0px 20px 25px -5px rgba(0, 0, 0, 0.1), 0px 8px 10px -6px rgba(0, 0, 0, 0.05);
+    --shadow-fedex: 0px 10px 30px -10px rgba(77, 20, 140, 0.25);
+
+    /* Familias Tipográficas */
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* ==========================================================================
+   Estilos de Reinicio y Estructura Base (Reset)
+   ========================================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0px;
+    padding: 0px;
+}
+
+html, body {
+    height: 100%;
+    background-color: #f2f2f2;
+    color: var(--color-carbon-900);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+::selection {
+    background-color: var(--color-fedex-orange);
+    color: #ffffff;
+}
+
+/* ==========================================================================
+   Clases Utilitarias Dinámicas para JavaScript
+   ========================================================================== */
+.hidden {
+    display: none !important;
+}
+
+.flex {
+    display: flex !important;
+}
+
+.bg-fedex-purple {
+    background-color: var(--color-fedex-purple) !important;
+}
+
+.text-white {
+    color: #ffffff !important;
+}
+
+.text-carbon-600 {
+    color: var(--color-carbon-600) !important;
+}
+
+.border-rose-500 {
+    border-color: var(--color-rose-500) !important;
+}
+
+/* ==========================================================================
+   Animaciones Clave (Keyframes)
+   ========================================================================== */
+
+/* Animación de vibración para errores de PIN */
+@keyframes shake {
+    0%, 100% { transform: translateX(0px); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}
+
+.animate-shake {
+    animation: shake 0.4s ease-in-out;
+}
+
+/* Animación de rotación para spinners de carga */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Animación de pulso para indicadores en vivo */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ==========================================================================
+   Layout General de la Aplicación (Estructurado con CSS Grid)
+   ========================================================================== */
+
+/* Estructura raíz de la página completa */
+.app-root {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    min-height: 100%;
+    width: 100%;
+}
+
+/* Contenedor principal que envuelve las vistas */
+.main-container {
+    display: grid;
+    grid-template-columns: 100%;
+    max-width: 1280px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 24px 16px;
+    gap: 24px;
+}
+
+/* Grilla de la Vista de Cliente (Buscador, Información y Mapa) */
+#view-client {
+    display: grid;
+    grid-template-columns: 100%;
+    gap: 24px;
+    width: 100%;
+}
+
+.client-grid {
+    display: grid;
+    grid-template-columns: 100%;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (min-width: 1024px) {
+    .client-grid {
+        grid-template-columns: 45% 53%;
+    }
+}
+
+/* Grilla de la Vista de Operador de Tráfico (Tarjetas de métricas y Formulario/Tabla) */
+#view-operator {
+    display: grid;
+    grid-template-columns: 100%;
+    gap: 24px;
+    width: 100%;
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+@media (min-width: 640px) {
+    .metrics-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.operator-grid {
+    display: grid;
+    grid-template-columns: 100%;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (min-width: 1024px) {
+    .operator-grid {
+        grid-template-columns: 45% 53%;
+    }
+}
+
+/* Grilla auxiliar de 2 columnas para campos de formularios */
+.grid-2col {
+    display: grid;
+    grid-template-columns: 100%;
+    gap: 12px;
+}
+
+@media (min-width: 640px) {
+    .grid-2col {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ==========================================================================
+   Disposición Interna de Componentes (Estructurada con Flexbox)
+   ========================================================================== */
+
+/* Barra Institucional de Cabecera */
+.site-header {
+    background-color: var(--color-fedex-purple);
+    border-bottom: 4px solid var(--color-fedex-orange);
+    position: sticky;
+    top: 0px;
+    z-index: 40;
+    box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1280px;
+    width: 100%;
+    height: 64px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 16px;
+    padding-right: 16px;
+    gap: 16px;
+}
+
+.brand-logo {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    font-weight: 900;
+    font-size: 24px;
+    letter-spacing: -1px;
+}
+
+.brand-logo .logo-main {
+    color: #ffffff;
+}
+
+.brand-logo .logo-accent {
+    color: var(--color-fedex-orange);
+}
+
+.brand-tag {
+    margin-left: 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #e9d5ff;
+    border: 1px solid rgba(216, 180, 254, 0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: none;
+}
+
+@media (min-width: 640px) {
+    .brand-tag {
+        display: inline-block;
+    }
+}
+
+/* Conmutador de Roles (Pestañas Cliente / Operador) */
+.nav-role-switcher {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(56, 14, 102, 0.8);
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid rgba(192, 132, 252, 0.2);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.nav-btn {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    transition: all 0.2s ease;
+    background: transparent;
+}
+
+.nav-btn-active {
+    background-color: #ffffff;
+    color: var(--color-fedex-purple);
+    box-shadow: var(--shadow-subtle);
+    font-weight: 700;
+}
+
+.nav-btn-inactive {
+    color: #e9d5ff;
+    font-weight: 500;
+}
+
+.nav-btn-inactive:hover {
+    color: #ffffff;
+}
+
+/* Banner de Búsqueda Principal (Hero Tracker) */
+.hero-banner {
+    background: linear-gradient(135deg, var(--color-fedex-purple) 0%, var(--color-fedex-purple-dark) 100%);
+    border-radius: 16px;
+    padding: 24px;
+    color: #ffffff;
+    box-shadow: var(--shadow-fedex);
+    border-bottom: 4px solid var(--color-fedex-orange);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+@media (min-width: 640px) {
+    .hero-banner {
+        padding: 32px;
+    }
+}
+
+.hero-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.hero-badge {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-fedex-orange);
+    font-weight: 700;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 4px 10px;
+    border-radius: 4px;
+    width: fit-content;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--color-fedex-orange);
+}
+
+.hero-title {
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: #ffffff;
+}
+
+@media (min-width: 640px) {
+    .hero-title {
+        font-size: 30px;
+    }
+}
+
+.hero-description {
+    font-size: 13px;
+    color: #f3e8ff;
+    font-weight: 500;
+}
+
+.search-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 8px;
+}
+
+@media (min-width: 640px) {
+    .search-box {
+        flex-direction: row;
+    }
+}
+
+.search-input-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.search-input-wrapper svg {
+    position: absolute;
+    left: 14px;
+    width: 20px;
+    height: 20px;
+    color: var(--color-fedex-purple);
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 16px 12px 44px;
+    font-size: 14px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--color-carbon-950);
+    background-color: #ffffff;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    outline: none;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    border-color: var(--color-fedex-orange);
+    box-shadow: 0px 0px 0px 4px rgba(255, 98, 0, 0.2);
+}
+
+.btn-search {
+    padding: 12px 28px;
+    background-color: var(--color-fedex-orange);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-search:hover {
+    background-color: var(--color-fedex-orange-hover);
+}
+
+.btn-search:active {
+    transform: scale(0.98);
+}
+
+.quick-pills-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #e9d5ff;
+    flex-wrap: wrap;
+    padding-top: 4px;
+}
+
+.pill-btn {
+    padding: 2px 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(216, 180, 254, 0.2);
+    color: #ffffff;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.pill-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Tarjeta Principal del Manifiesto de Envío */
+.card-container {
+    background-color: #ffffff;
+    border: 1px solid var(--color-carbon-200);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    background-color: var(--color-fedex-surface);
+    border-bottom: 1px solid #f3e8ff;
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.card-header-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-subtitle-mono {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--color-fedex-purple);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.card-title-lg {
+    font-size: 24px;
+    font-weight: 900;
+    font-family: var(--font-mono);
+    color: var(--color-carbon-950);
+    margin-top: 2px;
+}
+
+.card-recipient-text {
+    font-size: 12px;
+    color: var(--color-carbon-700);
+    margin-top: 2px;
+    font-weight: 700;
+}
+
+/* Bloque de Muestra del PIN de Liberación */
+.pin-box-section {
+    padding: 16px;
+    background-color: rgba(250, 247, 253, 0.5);
+    border-bottom: 1px solid #f3e8ff;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.pin-info-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.pin-label-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-fedex-purple);
+}
+
+.pin-label-sub {
+    font-size: 11px;
+    color: var(--color-carbon-600);
+}
+
+.pin-display-badge {
+    padding: 8px 16px;
+    background-color: #ffffff;
+    border: 2px solid var(--color-fedex-purple);
+    border-radius: 8px;
+    box-shadow: var(--shadow-subtle);
+    text-align: center;
+    min-width: 80px;
+}
+
+.pin-number {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--color-fedex-purple);
+}
+
+/* Sección de Detalles del Envío (Dirección y Servicio) */
+.card-details-section {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    font-size: 12px;
+    border-bottom: 1px solid var(--color-carbon-100);
+}
+
+.detail-label-mono {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--color-carbon-400);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: var(--font-mono);
+    display: block;
+}
+
+.detail-address-box {
+    color: var(--color-carbon-900);
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 1.5;
+    background-color: var(--color-carbon-50);
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    margin-top: 4px;
+}
+
+.detail-flex-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 4px;
+}
+
+.btn-link-action {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-fedex-purple);
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s ease;
+}
+
+.btn-link-action:hover {
+    color: var(--color-fedex-orange);
+}
+
+/* Panel de Controles del Simulador Satelital */
+.sim-controls-section {
+    padding: 20px;
+    background-color: rgba(249, 250, 251, 0.7);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sim-header-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.btn-sim-primary {
+    padding: 6px 14px;
+    background-color: var(--color-fedex-purple);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    box-shadow: var(--shadow-subtle);
+}
+
+.btn-sim-primary:hover {
+    background-color: var(--color-fedex-purple-dark);
+}
+
+.btn-sim-secondary {
+    padding: 6px 10px;
+    background-color: #ffffff;
+    color: var(--color-carbon-700);
+    border: 1px solid var(--color-carbon-300);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-sim-secondary:hover {
+    background-color: var(--color-carbon-100);
+}
+
+/* Barra de Progreso del Vehículo */
+.progress-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.progress-labels {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--color-carbon-700);
+}
+
+.progress-track {
+    width: 100%;
+    background-color: var(--color-carbon-200);
+    height: 8px;
+    border-radius: 100px;
+    overflow: hidden;
+    padding: 2px;
+    border: 1px solid rgba(209, 213, 219, 0.6);
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, var(--color-fedex-purple) 0%, var(--color-fedex-orange) 100%);
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.1s linear;
+}
+
+/* Botones Selector de Velocidad */
+.speed-bar {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    padding-top: 4px;
+    border-top: 1px solid var(--color-carbon-200);
+}
+
+.speed-buttons-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    background-color: #ffffff;
+    padding: 2px;
+    border: 1px solid var(--color-carbon-300);
+    border-radius: 6px;
+}
+
+.sim-speed-btn {
+    padding: 2px 8px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: var(--color-carbon-600);
+}
+
+.sim-speed-btn.bg-fedex-purple {
+    background-color: var(--color-fedex-purple);
+    color: #ffffff;
+}
+
+/* Historial Operativo (Línea de Tiempo / Timeline) */
+.timeline-section {
+    padding: 20px;
+    border-top: 1px solid var(--color-carbon-200);
+    display: flex;
+    flex-direction: column;
+}
+
+.timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    padding-left: 0px;
+}
+
+.timeline-list::before {
+    content: '';
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 8px;
+    width: 2px;
+    background-color: var(--color-carbon-200);
+}
+
+.timeline-item {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding-left: 20px;
+}
+
+/* Cotizador de Tarifas Flete Nacional */
+.quote-card {
+    background-color: #ffffff;
+    border: 1px solid var(--color-carbon-200);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: var(--shadow-card);
+}
+
+.quote-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--color-carbon-100);
+    padding-bottom: 12px;
+}
+
+.quote-title {
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--color-carbon-950);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.quote-tag {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    font-weight: 900;
+    color: var(--color-fedex-purple);
+    background-color: #f3e8ff;
+    border: 1px solid #e9d5ff;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.quote-result-box {
+    padding: 14px;
+    background-color: rgba(250, 247, 253, 0.7);
+    border: 1px solid #e9d5ff;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+}
+
+.quote-result-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--color-carbon-600);
+}
+
+.quote-total-row {
+    border-top: 1px solid #e9d5ff;
+    padding-top: 6px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-carbon-900);
+}
+
+.quote-price-tag {
+    color: var(--color-fedex-orange);
+    font-weight: 900;
+}
+
+/* Contenedor del Mapa Interactivo Leaflet */
+.map-card-container {
+    background-color: #ffffff;
+    border: 1px solid var(--color-carbon-200);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 12px;
+}
+
+.map-card-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.map-status-dot-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.map-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--color-fedex-orange);
+}
+
+.map-wrapper {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--color-carbon-200);
+    min-height: 520px;
+}
+
+/* Ajustes Específicos para el Renderizado del Mapa Leaflet */
+#map-container {
+    height: 100%;
+    min-height: 520px;
+    width: 100%;
+    z-index: 1;
+    background: #f4f4f5;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e4e4e7;
+    padding: 2px;
+}
+
+.leaflet-popup-content {
+    margin: 10px 12px;
+    font-family: var(--font-sans);
+}
+
+.leaflet-container {
+    font-family: var(--font-sans);
+}
+
+/* ==========================================================================
+   Componentes del Panel de Operador de Tráfico
+   ========================================================================== */
+
+/* Tarjetas de Métricas de Control */
+.stat-card {
+    background-color: #ffffff;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid var(--color-carbon-200);
+    box-shadow: var(--shadow-subtle);
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    font-weight: 600;
+    display: block;
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    color: var(--color-carbon-950);
+    margin-top: 4px;
+}
+
+/* Formulario Operativo de Registro y Edición */
+.form-card {
+    background-color: #ffffff;
+    border: 1px solid var(--color-carbon-200);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 80px;
+}
+
+.form-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-carbon-100);
+}
+
+.form-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-label {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    color: var(--color-carbon-600);
+    font-weight: 600;
+}
+
+.form-input, .form-select {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 12px;
+    background-color: var(--color-carbon-50);
+    border: 1px solid var(--color-carbon-300);
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.form-input:focus, .form-select:focus {
+    background-color: #ffffff;
+    border-color: var(--color-carbon-900);
+    box-shadow: 0px 0px 0px 2px rgba(17, 24, 39, 0.1);
+}
+
+.form-input.font-mono {
+    font-family: var(--font-mono);
+}
+
+.pin-generation-box {
+    padding: 12px;
+    background-color: var(--color-carbon-50);
+    border-radius: 8px;
+    border: 1px solid var(--color-carbon-200);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.form-actions-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 8px;
+}
+
+.btn-primary-dark {
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: var(--color-carbon-950);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-primary-dark:hover {
+    background-color: #000000;
+}
+
+.btn-secondary-light {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-carbon-600);
+    background-color: var(--color-carbon-100);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-secondary-light:hover {
+    background-color: var(--color-carbon-200);
+}
+
+/* Tabla de Registro General y Planilla Maestra */
+.table-card {
+    background-color: #ffffff;
+    border: 1px solid var(--color-carbon-200);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-subtle);
+    display: flex;
+    flex-direction: column;
+}
+
+.table-header-bar {
+    padding: 16px;
+    border-bottom: 1px solid var(--color-carbon-100);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 12px;
+    color: var(--color-carbon-700);
+}
+
+.custom-table th {
+    background-color: var(--color-carbon-50);
+    color: var(--color-carbon-500);
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--color-carbon-200);
+}
+
+.custom-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--color-carbon-100);
+    vertical-align: middle;
+}
+
+.custom-table tr:hover {
+    background-color: var(--color-carbon-50);
+}
+
+.btn-table-action {
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-carbon-700);
+    background-color: var(--color-carbon-100);
+    border: 1px solid var(--color-carbon-200);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-table-action:hover {
+    background-color: var(--color-carbon-200);
+}
+
+.btn-table-icon {
+    padding: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--color-carbon-500);
+    transition: color 0.2s ease;
+}
+
+.btn-table-icon:hover {
+    color: var(--color-carbon-950);
+}
+
+.btn-table-icon.delete:hover {
+    color: var(--color-rose-600);
+}
+
+/* Insignias de Estado (Badges) */
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+}
+
+.badge-prep {
+    background-color: var(--color-amber-50);
+    color: var(--color-amber-800);
+    border: 1px solid var(--color-amber-200);
+}
+
+.badge-transit {
+    background-color: var(--color-fedex-orange);
+    color: #ffffff;
+    text-transform: uppercase;
+    font-weight: 900;
+    box-shadow: var(--shadow-subtle);
+    padding: 2px 10px;
+}
+
+.badge-delivered {
+    background-color: var(--color-emerald-50);
+    color: var(--color-emerald-800);
+    border: 1px solid var(--color-emerald-200);
+}
+
+.badge-canceled {
+    background-color: var(--color-rose-50);
+    color: var(--color-rose-800);
+    border: 1px solid var(--color-rose-200);
+}
+
+/* ==========================================================================
+   Modales Emergentes (Diálogos de Validación de PIN y Rótulo Logístico)
+   ========================================================================== */
+.modal-backdrop {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    z-index: 50;
+    background-color: rgba(9, 9, 11, 0.6);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.modal-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    width: 100%;
+    padding: 24px;
+    box-shadow: var(--shadow-overlay);
+    border: 1px solid var(--color-carbon-200);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.modal-sm {
+    max-width: 384px;
+}
+
+.modal-lg {
+    max-width: 512px;
+    max-height: 90%;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    padding-top: 4px;
+}
+
+/* Estilo de Recibo con Borde Dentado */
+.receipt-border {
+    background-image: radial-gradient(circle at 10px 0, transparent 0, transparent 6px, #ffffff 6px);
+    background-position: bottom;
+    background-size: 20px 10px;
+    background-repeat: repeat-x;
+}
+
+/* Configuración de Estilos para Impresión Directa */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #print-modal-content,
+    #print-modal-content * {
+        visibility: visible;
+    }
+
+    #print-modal-content {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        margin: 0px;
+        padding: 0px;
+        border: none !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+}
+
+/* ==========================================================================
+   Notificaciones Emergentes (Toasts)
+   ========================================================================== */
+#toast-container {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.toast-msg {
+    pointer-events: auto;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    box-shadow: var(--shadow-overlay);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    opacity: 1;
+    transform: translateY(0px);
+}
+
+.toast-msg.opacity-0 {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+.toast-info {
+    background-color: var(--color-fedex-purple);
+    color: #ffffff;
+    border-color: #6b21a8;
+}
+
+.toast-success {
+    background-color: var(--color-emerald-950);
+    color: var(--color-emerald-100);
+    border-color: var(--color-emerald-800);
+}
+
+.toast-warning {
+    background-color: #451a03;
+    color: #fef3c7;
+    border-color: #78350f;
+}
+
+.toast-error {
+    background-color: var(--color-rose-950);
+    color: var(--color-rose-100);
+    border-color: var(--color-rose-800);
+}
